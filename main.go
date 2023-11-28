@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"bsk-bank/handlers"
 	"bsk-bank/lib"
 	"bsk-bank/views"
 
@@ -42,11 +43,7 @@ func main() {
 		ctx.HTML(http.StatusOK, "", views.Login())
 	})
 
-	application.POST("/login", func(ctx *gin.Context) {
-		username := ctx.PostForm("username")
-		password := ctx.PostForm("password")
-		ctx.HTML(http.StatusOK, "", views.AfterLogin(username, password))
-	})
+	application.POST("/login", handlers.LoginHandler(db))
 
 	application.Run(":8080")
 }

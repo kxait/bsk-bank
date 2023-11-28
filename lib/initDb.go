@@ -7,7 +7,7 @@ func SetupDatabase(db *sql.DB) error {
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 username TEXT NOT NULL,
 password TEXT NOT NULL,
-deleted TEXT NOT NULL
+deleted INTEGER NOT NULL DEFAULT 0
 )`)
 
 	if err != nil {
