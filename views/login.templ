@@ -1,0 +1,21 @@
+package views
+
+templ Login() {
+	<div>
+		<form method="post" action="/login">
+			<div>
+				<label for="#username">Nazwa uzytkownika</label>
+				<input name="username" type="text" placeholder="user" id="username"/>
+			</div>
+			<div>
+				<label for="#password">Haslo</label>
+				<input name="password" type="password" id="password" placeholder="pass"/>
+			</div>
+			<button type="submit">Zaloguj</button>
+		</form>
+	</div>
+}
+
+templ AfterLogin(username string, password string) {
+	{ username } and { password }
+}
