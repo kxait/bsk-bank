@@ -3,12 +3,10 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"net/http"
 	"os"
 
 	"bsk-bank/handlers"
 	"bsk-bank/lib"
-	"bsk-bank/views"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -30,20 +28,23 @@ func main() {
 	}
 
 	// migrations etc
-	lib.SetupDatabase(db)
+	err = lib.SetupDatabase(db)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "uh oh %s", err)
+		os.Exit(1)
+	}
 
 	application := gin.Default()
 	application.HTMLRender = &lib.TemplRender{}
 
-	application.GET("/", func(ctx *gin.Context) {
-		ctx.HTML(http.StatusOK, "", views.Hello("jon"))
-	})
+	application.GET("/", handlers.HelloHandler(db))
 
-	application.GET("/login", func(ctx *gin.Context) {
-		ctx.HTML(http.StatusOK, "", views.Login())
-	})
+	application.GET("/login", handlers.GetLoginHandler(db))
+	application.POST("/login", handlers.PostLoginHandler(db))
 
-	application.POST("/login", handlers.LoginHandler(db))
+	application.GET("/logout", handlers.LogoutHandler(db))
+
+	application.GET("/dashboard", handlers.DashboardHandler(db))
 
 	application.Run(":8080")
 }
