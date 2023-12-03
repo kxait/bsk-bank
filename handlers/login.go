@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -17,7 +18,7 @@ func GetLoginHandler(db *sql.DB) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		alreadyUser, err := lib.GetUser(ctx, db)
 		if err == nil || alreadyUser != nil {
-			lib.ErrorPage(ctx, "Log out first")
+			views.ErrorPage(ctx, "Log out first")
 			return
 		}
 
@@ -26,10 +27,17 @@ func GetLoginHandler(db *sql.DB) gin.HandlerFunc {
 }
 
 func PostLoginHandler(db *sql.DB) gin.HandlerFunc {
+	registerFailedLogin := func(username string, ipAddress string) {
+		_, err := db.Query("INSERT INTO failed_login (username, ip_address) VALUES (?, ?)", username, ipAddress)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "could not create failed login (%s, %s)! reason: %s", username, ipAddress, err.Error())
+		}
+	}
+
 	return func(ctx *gin.Context) {
 		alreadyUser, err := lib.GetUser(ctx, db)
 		if err == nil || alreadyUser != nil {
-			lib.ErrorPage(ctx, "Log out first")
+			views.ErrorPage(ctx, "Log out first")
 			return
 		}
 
@@ -38,51 +46,53 @@ func PostLoginHandler(db *sql.DB) gin.HandlerFunc {
 
 		records, err := db.Query("SELECT * FROM user WHERE username = ? AND deleted = 0", username)
 		if err != nil {
-			lib.ErrorPage(ctx, err.Error())
+			views.ErrorPage(ctx, err.Error())
 			return
 		}
 
 		users, err := lib.ScanUsers(records)
 		if err != nil {
-			lib.ErrorPage(ctx, err.Error())
+			views.ErrorPage(ctx, err.Error())
 			return
 		}
 
 		if len(users) != 1 {
-			lib.ErrorPage(ctx, "Authentication error! "+fmt.Sprintf("%d", len(users)))
+			views.ErrorPage(ctx, "Authentication error! "+fmt.Sprintf("%d", len(users)))
+			registerFailedLogin(username, ctx.ClientIP())
 			return
 		}
 
 		user := users[0]
 
 		if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-			lib.ErrorPage(ctx, "Authentication error!")
+			views.ErrorPage(ctx, "Authentication error!")
+			registerFailedLogin(username, ctx.ClientIP())
 			return
 		}
 
 		token := randomToken()
-		expires := time.Now().Add(24 * time.Hour)
+		expires := time.Now().Add(24 * time.Hour).Format(time.DateTime)
 
 		_, err = db.Query("UPDATE session SET valid = 0 WHERE user_id = ?", user.Id)
 		if err != nil {
-			lib.ErrorPage(ctx, err.Error())
+			views.ErrorPage(ctx, err.Error())
 			return
 		}
 
 		records, err = db.Query("INSERT INTO session (token, user_id, expires_at) VALUES (?, ?, ?) RETURNING *", token, user.Id, expires)
 		if err != nil {
-			lib.ErrorPage(ctx, err.Error())
+			views.ErrorPage(ctx, err.Error())
 			return
 		}
 
 		sessions, err := lib.ScanSessions(records)
 		if err != nil {
-			lib.ErrorPage(ctx, err.Error())
+			views.ErrorPage(ctx, err.Error())
 			return
 		}
 
 		if len(sessions) != 1 {
-			lib.ErrorPage(ctx, "Could not create user session!")
+			views.ErrorPage(ctx, "Could not create user session!")
 			return
 		}
 		fmt.Printf("%+v\n", sessions[0])

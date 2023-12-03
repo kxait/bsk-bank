@@ -1,0 +1,218 @@
+package views
+
+import (
+	"bsk-bank/lib"
+	"fmt"
+)
+
+templ Header() {
+	<style>
+		.nav {
+			display: flex;
+		}
+
+		.nav a {
+			padding: 5px;
+		}
+	</style>
+	<div class="nav">
+		<a href="/dashboard">Strona główna</a>
+		<a href="/dashboard/transactions">Transakcje</a>
+		<a href="/dashboard/accounts">Konta</a>
+		<a href="/dashboard/config">Konfiguracja</a>
+		<a href="/dashboard/logs">Historia operacji</a>
+		<a href="/dashboard/update">Aktualizacja</a>
+		<a href="/dashboard/logout">Wyloguj</a>
+	</div>
+}
+
+templ Dashboard() {
+	@Header()
+	<main>
+		<h1>Witaj!</h1>
+		<div>Wybierz operację z górnego menu.</div>
+	</main>
+}
+
+type AccountsListViewModel struct {
+	Accounts []lib.Account
+	Balances map[int64]float64
+}
+
+templ Accounts(accounts AccountsListViewModel) {
+	@Header()
+	<main>
+		<h1>Konta</h1>
+		<a href="/dashboard/accounts/create">Stwórz nowe konto</a>
+		<div>
+			<div>
+				<form method="GET">
+					Wyszukaj po imieniu i nazwisku <input name="query" type="text" placeholder="Jan Kowalski"/>
+					<button type="submit">Wyszukaj</button>
+				</form>
+			</div>
+			<div>
+				<table>
+					<tr>
+						<th>Id</th>
+						<th>Imie i nazwisko</th>
+						<th>Saldo</th>
+						<th>Usuniety</th>
+						<th>Akcje</th>
+					</tr>
+					for _, account := range accounts.Accounts {
+						<tr>
+							<td>{ fmt.Sprint(account.Id) }</td>
+							<td>{ account.HolderName }</td>
+							<td>{ fmt.Sprint(accounts.Balances[account.Id]) }</td>
+							<td>
+								if account.Deleted {
+									<span>Tak</span>
+								} else {
+									<span>Nie</span>
+								}
+							</td>
+							<td>
+								<ul>
+									if !account.Deleted {
+										<li>
+											<a href="#">Usuń</a>
+										</li>
+									}
+									<li>
+										<a href={ templ.SafeURL(fmt.Sprintf("/dashboard/accounts/%d", account.Id)) }>Szczegóły</a>
+									</li>
+								</ul>
+							</td>
+						</tr>
+					}
+				</table>
+			</div>
+		</div>
+	</main>
+}
+
+templ CreateAccount() {
+	@Header()
+	<main>
+		<h1>Stwórz konto</h1>
+		<div>
+			<div>
+				<form method="POST">
+					<label for="#name">Imie i nazwisko</label>
+					<input name="name" id="name" type="text" placeholder="Jan Kowalski"/>
+					<hr/>
+					<button type="Submit">Wyślij</button>
+				</form>
+			</div>
+		</div>
+	</main>
+}
+
+type AccountDetailsViewModel struct {
+	Account      lib.Account
+	Balance      float64
+	Transactions []TransactionViewModel
+}
+
+templ AccountDetails(account AccountDetailsViewModel) {
+	@Header()
+	<main>
+		<h1>{ account.Account.HolderName }</h1>
+		<div>
+			<div><b>ID: </b> { fmt.Sprint(account.Account.Id) }</div>
+			<div><b>Saldo: </b> { fmt.Sprint(account.Balance) }</div>
+		</div>
+		<div>
+			<h2>Transakcje</h2>
+			<div>
+				<table>
+					<tr>
+						<th>Id</th>
+						<th>Konto źródłowe</th>
+						<th>Konto docelowe</th>
+						<th>Wartość</th>
+					</tr>
+					for _, transaction := range account.Transactions {
+						<tr>
+							<td>{ fmt.Sprint(transaction.Id) }</td>
+							<td>{ transaction.SourceAccountName } ({ fmt.Sprint(transaction.SourceAccountId) })</td>
+							<td>{ transaction.DestinationAccountName } ({ fmt.Sprint(transaction.DestinationAccountId) })</td>
+							<td>{ fmt.Sprint(transaction.Amount) }</td>
+						</tr>
+					}
+				</table>
+			</div>
+		</div>
+		<div>
+			<h2>Nowa transakcja</h2>
+			<form method="post" action={ templ.SafeURL(fmt.Sprintf("/dashboard/accounts/%d/transaction", account.Account.Id)) }>
+				<div>
+					<label for="#destination-user-id">Konto odbiorcy</label>
+					<input type="text" name="destination-account-id" id="destination-account-id" placeholder="0"/>
+				</div>
+				<div>
+					<label for="#amount">Ilosc</label>
+					<input type="text" name="amount" id="amount" placeholder="21.37"/> PLN
+				</div>
+				<button type="submit">Stworz transakcje</button>
+			</form>
+		</div>
+		<div>
+			<h2>Wpłać pieniądze</h2>
+			<form method="post" action={ templ.SafeURL(fmt.Sprintf("/dashboard/accounts/%d/deposit", account.Account.Id)) }>
+				<div>
+					<label for="#amount2">Ilość</label>
+					<input type="text" name="amount" id="amount2" placeholder="21.37"/> PLN
+				</div>
+				<button type="submit">Wpłać</button>
+			</form>
+		</div>
+		<div>
+			<h2>Wypłać pieniądze</h2>
+			<form method="post" action={ templ.SafeURL(fmt.Sprintf("/dashboard/accounts/%d/withdraw", account.Account.Id)) }>
+				<div>
+					<label for="#amount2">Ilość</label>
+					<input type="text" name="amount" id="amount2" placeholder="21.37"/> PLN
+				</div>
+				<button type="submit">Wpłać</button>
+			</form>
+		</div>
+	</main>
+}
+
+type TransactionViewModel struct {
+	Id                     int64
+	SourceAccountId        int64
+	DestinationAccountId   int64
+	Amount                 float64
+	SourceAccountName      string
+	DestinationAccountName string
+}
+
+templ Transactions(transactions []TransactionViewModel) {
+	@Header()
+	<main>
+		<h1>Tranaskcje</h1>
+		<div>
+			<div>
+				<table>
+					<tr>
+						<th>Id</th>
+						<th>Konto źródłowe</th>
+						<th>Konto docelowe</th>
+						<th>Wartość</th>
+					</tr>
+					for _, transaction := range transactions {
+						<tr>
+							<td>{ fmt.Sprint(transaction.Id) }</td>
+							<td>{ transaction.SourceAccountName } ({ fmt.Sprint(transaction.SourceAccountId) })</td>
+							<td>{ transaction.DestinationAccountName } ({ fmt.Sprint(transaction.DestinationAccountId) })</td>
+							<td>{ fmt.Sprint(transaction.Amount) }</td>
+						</tr>
+					}
+				</table>
+			</div>
+		</div>
+	</main>
+}

@@ -45,6 +45,14 @@ func main() {
 	application.GET("/logout", handlers.LogoutHandler(db))
 
 	application.GET("/dashboard", handlers.DashboardHandler(db))
+	application.GET("/dashboard/accounts", handlers.DashboardAccountsHandler(db))
+	application.GET("/dashboard/accounts/create", handlers.GetDashboardCreateAccountHandler(db))
+	application.POST("/dashboard/accounts/create", handlers.PostDashboardCreateAccountHandler(db))
+	application.GET("/dashboard/accounts/:accountId", handlers.DashboardAccountDetailsHandler(db))
+	application.POST("/dashboard/accounts/:accountId/transaction", handlers.PostDashboardAccountDetailsCreateTransactionHandler(db))
+	application.POST("/dashboard/accounts/:accountId/deposit", handlers.PostDashboardAccountDetailsDepositHandler(db))
+	application.POST("/dashboard/accounts/:accountId/withdraw", handlers.PostDashboardAccountDetailsWithdrawHandler(db))
+	application.GET("/dashboard/transactions", handlers.TransactionsHandler(db))
 
 	application.Run(":8080")
 }

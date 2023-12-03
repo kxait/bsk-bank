@@ -1,9 +1,18 @@
 package views
 
+import (
+	"net/http"
+	"github.com/gin-gonic/gin"
+)
+
 templ Error(message string) {
 	<div>
 		<h1>Oops!</h1>
 		<div>An error has occurred</div>
 		<div>{ message }</div>
 	</div>
+}
+
+func ErrorPage(ctx *gin.Context, errorMessage string) {
+	ctx.HTML(http.StatusBadRequest, "", Error(errorMessage))
 }

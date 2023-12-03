@@ -51,7 +51,7 @@ func ScanSessions(rows *sql.Rows) ([]Session, error) {
 			return []Session{}, err
 		}
 
-		session.ExpiresAt, err = time.Parse("2006-01-02 15:04:05.000000-07:00", expiresAt)
+		session.ExpiresAt, err = time.Parse(time.DateTime, expiresAt)
 		if err != nil {
 			return []Session{}, err
 		}
@@ -64,5 +64,64 @@ func ScanSessions(rows *sql.Rows) ([]Session, error) {
 
 		got = append(got, session)
 	}
+	return got, nil
+}
+
+type Account struct {
+	Id         int64
+	HolderName string
+	CreatedAt  time.Time
+	Deleted    bool
+}
+
+func ScanAccounts(rows *sql.Rows) ([]Account, error) {
+	got := make([]Account, 0)
+	for rows.Next() {
+		var account Account
+		var createdAt string
+		var deleted int64
+
+		err := rows.Scan(&account.Id, &account.HolderName, &createdAt, &deleted)
+		if err != nil {
+			return []Account{}, err
+		}
+
+		account.CreatedAt, err = time.Parse(time.DateTime, createdAt)
+		if err != nil {
+			return []Account{}, err
+		}
+
+		if deleted == 0 {
+			account.Deleted = false
+		} else {
+			account.Deleted = true
+		}
+
+		got = append(got, account)
+
+	}
+	return got, nil
+}
+
+type Transaction struct {
+	Id                   int64
+	SourceAccountId      int64
+	DestinationAccountId int64
+	Amount               float64
+}
+
+func ScanTransactions(rows *sql.Rows) ([]Transaction, error) {
+	got := make([]Transaction, 0)
+	for rows.Next() {
+		var transaction Transaction
+
+		err := rows.Scan(&transaction.Id, &transaction.SourceAccountId, &transaction.DestinationAccountId, &transaction.Amount)
+		if err != nil {
+			return []Transaction{}, err
+		}
+
+		got = append(got, transaction)
+	}
+
 	return got, nil
 }
