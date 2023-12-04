@@ -1,0 +1,30 @@
+package views
+
+import "bsk-bank/lib"
+import "time"
+
+templ DashboardLogins(logins []lib.FailedLogin) {
+	@Header()
+	<main>
+		<h1>Historia operacji</h1>
+		<div>
+			<h2>Nieudane zalogowania</h2>
+			<div>
+				<table>
+					<tr>
+						<th>Nazwa uzytkownika</th>
+						<th>Adres IP</th>
+						<th>Kiedy</th>
+					</tr>
+					for _, login := range logins {
+						<tr>
+							<td>{ login.Username }</td>
+							<td>{ login.IpAddress }</td>
+							<td>{ login.CreatedAt.Format(time.DateTime) } UTC</td>
+						</tr>
+					}
+				</table>
+			</div>
+		</div>
+	</main>
+}

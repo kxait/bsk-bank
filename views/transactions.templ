@@ -1,0 +1,41 @@
+package views
+
+import (
+	"fmt"
+)
+
+type TransactionViewModel struct {
+	Id                     int64
+	SourceAccountId        int64
+	DestinationAccountId   int64
+	Amount                 float64
+	SourceAccountName      string
+	DestinationAccountName string
+}
+
+templ Transactions(transactions []TransactionViewModel) {
+	@Header()
+	<main>
+		<h1>Tranaskcje</h1>
+		<div>
+			<div>
+				<table>
+					<tr>
+						<th>Id</th>
+						<th>Konto źródłowe</th>
+						<th>Konto docelowe</th>
+						<th>Wartość</th>
+					</tr>
+					for _, transaction := range transactions {
+						<tr>
+							<td>{ fmt.Sprint(transaction.Id) }</td>
+							<td>{ transaction.SourceAccountName } ({ fmt.Sprint(transaction.SourceAccountId) })</td>
+							<td>{ transaction.DestinationAccountName } ({ fmt.Sprint(transaction.DestinationAccountId) })</td>
+							<td>{ fmt.Sprint(transaction.Amount) }</td>
+						</tr>
+					}
+				</table>
+			</div>
+		</div>
+	</main>
+}

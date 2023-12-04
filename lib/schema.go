@@ -125,3 +125,64 @@ func ScanTransactions(rows *sql.Rows) ([]Transaction, error) {
 
 	return got, nil
 }
+
+type FailedLogin struct {
+	Id        int64
+	Username  string
+	CreatedAt time.Time
+	IpAddress string
+}
+
+func ScanFailedLogins(rows *sql.Rows) ([]FailedLogin, error) {
+	got := make([]FailedLogin, 0)
+	for rows.Next() {
+		var failedLogin FailedLogin
+		var createdAt string
+
+		err := rows.Scan(&failedLogin.Id, &failedLogin.Username, &createdAt, &failedLogin.IpAddress)
+		if err != nil {
+			return []FailedLogin{}, err
+		}
+
+		failedLogin.CreatedAt, err = time.Parse(time.DateTime, createdAt)
+		if err != nil {
+			return []FailedLogin{}, err
+		}
+
+		got = append(got, failedLogin)
+	}
+
+	return got, nil
+}
+
+type Config struct {
+	Id         int64
+	Key        string
+	Value      string
+	ModifiedAt *time.Time
+}
+
+func ScanConfig(rows *sql.Rows) ([]Config, error) {
+	got := make([]Config, 0)
+	for rows.Next() {
+		var config Config
+
+		var modifiedAt sql.NullString
+		err := rows.Scan(&config.Id, &config.Key, &config.Value, &modifiedAt)
+		if err != nil {
+			return []Config{}, err
+		}
+
+		if modifiedAt.Valid {
+			stuff, err := time.Parse(time.DateTime, modifiedAt.String)
+			if err != nil {
+				return []Config{}, err
+			}
+			config.ModifiedAt = &stuff
+		}
+
+		got = append(got, config)
+	}
+
+	return got, nil
+}

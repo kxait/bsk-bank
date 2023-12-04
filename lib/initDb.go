@@ -39,7 +39,14 @@ func SetupDatabase(db *sql.DB) error {
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       ip_address TEXT NOT NULL
 )`,
+		`CREATE TABLE IF NOT EXISTS config (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      key TEXT NOT NULL,
+      value TEXT NOT NULL,
+      modified_at TEXT
+)`,
 		`INSERT OR IGNORE INTO account (id, holder_name) VALUES (-1, 'Okienko')`,
+		`INSERT OR IGNORE INTO config (id, key, value) VALUES (0, 'transaction_limit', '100000')`,
 	}
 
 	for _, query := range queries {

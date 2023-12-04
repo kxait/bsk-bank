@@ -1,0 +1,40 @@
+package views
+
+import "bsk-bank/lib"
+import "time"
+
+templ Config(config []lib.Config) {
+	@Header()
+	<div>
+		<h1>Konfiguracja</h1>
+		<div>
+			<table>
+				<tr>
+					<th>Klucz</th>
+					<th>Wartosc</th>
+					<th></th>
+					<th>Data modyfikacji</th>
+				</tr>
+				for _, configKey := range config {
+					<form action="/dashboard/config/set" method="post">
+						<tr>
+							<td>
+								<input type="hidden" name="key" value={ configKey.Key }/>
+								{ configKey.Key }
+							</td>
+							<td><input type="text" name="value" value={ configKey.Value }/></td>
+							<td><button type="submit">Zmien</button></td>
+							<td>
+								if configKey.ModifiedAt == nil {
+									-
+								} else {
+									{ configKey.ModifiedAt.Format(time.DateTime) }
+								}
+							</td>
+						</tr>
+					</form>
+				}
+			</table>
+		</div>
+	</div>
+}

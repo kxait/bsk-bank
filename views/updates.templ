@@ -1,0 +1,50 @@
+package views
+
+templ Updates() {
+	@Header()
+	<div>
+		<h1>Aktualizacje</h1>
+		<div>
+			<div>
+				Nacisnij przycisk ponizej aby wykonac aktualizacje
+			</div>
+			<div>
+				<progress id="poggers" value="0" max="0"></progress>
+			</div>
+			<div id="alert"></div>
+			<div>
+				<button id="btn">Wykonaj aktualizacje</button>
+			</div>
+		</div>
+		<script>
+			const poggers = document.getElementById("poggers")	
+			const alert = document.getElementById("alert")	
+			const btn = document.getElementById("btn")	
+
+			btn.onclick = () => {
+				btn.disabled = true
+				alert.innerHTML = ""
+				if(Math.random() > 0.5) {
+					alert.innerHTML = "Nie ma aktualizacji do wykonania."
+				}else{
+					let value = 0
+					poggers.value = 0
+					poggers.max = 0
+					const doStuff = ()=>{
+						if(value >100){
+							alert.innerHTML="Aktualizacja ukonczona!"
+							return
+						}
+						poggers.value = value++
+							setTimeout(doStuff, 10)
+						}
+						setTimeout(() => {
+							poggers.max=100
+							doStuff()
+						}, 1000)
+					}
+				}
+
+		</script>
+	</div>
+}

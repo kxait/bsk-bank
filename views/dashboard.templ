@@ -21,8 +21,8 @@ templ Header() {
 		<a href="/dashboard/accounts">Konta</a>
 		<a href="/dashboard/config">Konfiguracja</a>
 		<a href="/dashboard/logs">Historia operacji</a>
-		<a href="/dashboard/update">Aktualizacja</a>
-		<a href="/dashboard/logout">Wyloguj</a>
+		<a href="/dashboard/updates">Aktualizacja</a>
+		<a href="/logout">Wyloguj</a>
 	</div>
 }
 
@@ -122,6 +122,13 @@ templ AccountDetails(account AccountDetailsViewModel) {
 		<div>
 			<div><b>ID: </b> { fmt.Sprint(account.Account.Id) }</div>
 			<div><b>Saldo: </b> { fmt.Sprint(account.Balance) }</div>
+			<div>
+				<form method="post" action={ templ.SafeURL(fmt.Sprintf("/dashboard/accounts/%d/name", account.Account.Id)) }>
+					<b>Imie i nazwisko: </b>
+					<input type="text" name="holder-name" value={ account.Account.HolderName }/>
+					<button type="submit">Zmien imie i nazwisko</button>
+				</form>
+			</div>
 		</div>
 		<div>
 			<h2>Transakcje</h2>
@@ -177,42 +184,6 @@ templ AccountDetails(account AccountDetailsViewModel) {
 				</div>
 				<button type="submit">Wpłać</button>
 			</form>
-		</div>
-	</main>
-}
-
-type TransactionViewModel struct {
-	Id                     int64
-	SourceAccountId        int64
-	DestinationAccountId   int64
-	Amount                 float64
-	SourceAccountName      string
-	DestinationAccountName string
-}
-
-templ Transactions(transactions []TransactionViewModel) {
-	@Header()
-	<main>
-		<h1>Tranaskcje</h1>
-		<div>
-			<div>
-				<table>
-					<tr>
-						<th>Id</th>
-						<th>Konto źródłowe</th>
-						<th>Konto docelowe</th>
-						<th>Wartość</th>
-					</tr>
-					for _, transaction := range transactions {
-						<tr>
-							<td>{ fmt.Sprint(transaction.Id) }</td>
-							<td>{ transaction.SourceAccountName } ({ fmt.Sprint(transaction.SourceAccountId) })</td>
-							<td>{ transaction.DestinationAccountName } ({ fmt.Sprint(transaction.DestinationAccountId) })</td>
-							<td>{ fmt.Sprint(transaction.Amount) }</td>
-						</tr>
-					}
-				</table>
-			</div>
 		</div>
 	</main>
 }
