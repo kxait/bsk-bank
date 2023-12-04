@@ -15,13 +15,3 @@ templ Login() {
 		</form>
 	</div>
 }
-
-templ AfterLogin(username string, password string) {
-	{ username } and { password }
-}
-
-templ Logout() {
-	<script>
-		setTimeout(() => window.location.replace("/"), 10);
-	</script>
-}

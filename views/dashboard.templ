@@ -5,7 +5,20 @@ import (
 	"fmt"
 )
 
+templ tableau() {
+	<style>
+		table {
+			border-collapse: collapse;
+		}
+		td {
+			padding: 3px;
+			border: 1px solid black;
+		}
+	</style>
+}
+
 templ Header() {
+	@tableau()
 	<style>
 		.nav {
 			display: flex;
@@ -64,7 +77,7 @@ templ Accounts(accounts AccountsListViewModel) {
 						<tr>
 							<td>{ fmt.Sprint(account.Id) }</td>
 							<td>{ account.HolderName }</td>
-							<td>{ fmt.Sprint(accounts.Balances[account.Id]) }</td>
+							<td>{ fmt.Sprintf("%.2f PLN", accounts.Balances[account.Id]) }</td>
 							<td>
 								if account.Deleted {
 									<span>Tak</span>
@@ -121,7 +134,7 @@ templ AccountDetails(account AccountDetailsViewModel) {
 		<h1>{ account.Account.HolderName }</h1>
 		<div>
 			<div><b>ID: </b> { fmt.Sprint(account.Account.Id) }</div>
-			<div><b>Saldo: </b> { fmt.Sprint(account.Balance) }</div>
+			<div><b>Saldo: </b> { fmt.Sprintf("%.2f PLN", account.Balance) }</div>
 			<div>
 				<form method="post" action={ templ.SafeURL(fmt.Sprintf("/dashboard/accounts/%d/name", account.Account.Id)) }>
 					<b>Imie i nazwisko: </b>
@@ -145,7 +158,7 @@ templ AccountDetails(account AccountDetailsViewModel) {
 							<td>{ fmt.Sprint(transaction.Id) }</td>
 							<td>{ transaction.SourceAccountName } ({ fmt.Sprint(transaction.SourceAccountId) })</td>
 							<td>{ transaction.DestinationAccountName } ({ fmt.Sprint(transaction.DestinationAccountId) })</td>
-							<td>{ fmt.Sprint(transaction.Amount) }</td>
+							<td>{ fmt.Sprintf("%.2f PLN", transaction.Amount) }</td>
 						</tr>
 					}
 				</table>
@@ -159,7 +172,7 @@ templ AccountDetails(account AccountDetailsViewModel) {
 					<input type="text" name="destination-account-id" id="destination-account-id" placeholder="0"/>
 				</div>
 				<div>
-					<label for="#amount">Ilosc</label>
+					<label for="#amount">Wartość</label>
 					<input type="text" name="amount" id="amount" placeholder="21.37"/> PLN
 				</div>
 				<button type="submit">Stworz transakcje</button>
@@ -169,7 +182,7 @@ templ AccountDetails(account AccountDetailsViewModel) {
 			<h2>Wpłać pieniądze</h2>
 			<form method="post" action={ templ.SafeURL(fmt.Sprintf("/dashboard/accounts/%d/deposit", account.Account.Id)) }>
 				<div>
-					<label for="#amount2">Ilość</label>
+					<label for="#amount2">Wartość</label>
 					<input type="text" name="amount" id="amount2" placeholder="21.37"/> PLN
 				</div>
 				<button type="submit">Wpłać</button>
@@ -179,10 +192,10 @@ templ AccountDetails(account AccountDetailsViewModel) {
 			<h2>Wypłać pieniądze</h2>
 			<form method="post" action={ templ.SafeURL(fmt.Sprintf("/dashboard/accounts/%d/withdraw", account.Account.Id)) }>
 				<div>
-					<label for="#amount2">Ilość</label>
+					<label for="#amount2">Wartość</label>
 					<input type="text" name="amount" id="amount2" placeholder="21.37"/> PLN
 				</div>
-				<button type="submit">Wpłać</button>
+				<button type="submit">Wypłać</button>
 			</form>
 		</div>
 	</main>

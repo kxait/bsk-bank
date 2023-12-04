@@ -30,8 +30,8 @@ func SetupDatabase(db *sql.DB) error {
       source_account_id INTEGER NOT NULL,
       destination_account_id INTEGER NOT NULL,
       amount REAL NOT NULL,
-      FOREIGN KEY (source_account_id) REFERENCES user(id),
-      FOREIGN KEY (destination_account_id) REFERENCES user(id)
+      FOREIGN KEY (source_account_id) REFERENCES account(id),
+      FOREIGN KEY (destination_account_id) REFERENCES account(id)
 )`,
 		`CREATE TABLE IF NOT EXISTS failed_login (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

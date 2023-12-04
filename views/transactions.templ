@@ -16,7 +16,7 @@ type TransactionViewModel struct {
 templ Transactions(transactions []TransactionViewModel) {
 	@Header()
 	<main>
-		<h1>Tranaskcje</h1>
+		<h1>Transakcje</h1>
 		<div>
 			<div>
 				<table>
@@ -31,7 +31,7 @@ templ Transactions(transactions []TransactionViewModel) {
 							<td>{ fmt.Sprint(transaction.Id) }</td>
 							<td>{ transaction.SourceAccountName } ({ fmt.Sprint(transaction.SourceAccountId) })</td>
 							<td>{ transaction.DestinationAccountName } ({ fmt.Sprint(transaction.DestinationAccountId) })</td>
-							<td>{ fmt.Sprint(transaction.Amount) }</td>
+							<td>{ fmt.Sprintf("%.2f PLN", transaction.Amount) }</td>
 						</tr>
 					}
 				</table>
